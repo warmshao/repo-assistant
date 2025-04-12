@@ -233,7 +233,6 @@ async def is_last_update_by_owner(
                 logger.warning(
                     f"Could not parse string response from {comments_tool.name} for {item_type} #{item_number}")
         # ------------------------------------------------------------------
-        pdb.set_trace()
         if not comments_list:
             logger.debug(f"No comments found for {item_type} #{item_number}. Assuming not owner.")
             return False  # No comments, so owner couldn't be the last commenter
