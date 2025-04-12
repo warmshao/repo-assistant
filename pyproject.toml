@@ -1,0 +1,20 @@
+[project]
+name = "repo-assistant"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "langchain>=0.3.23",
+    "langchain-anthropic>=0.3.10",
+    "langchain-aws>=0.2.19",
+    "langchain-google-genai>=2.1.2",
+    "langchain-mcp-adapters>=0.0.7",
+    "langchain-mistralai>=0.2.10",
+    "langchain-ollama>=0.3.1",
+    "langchain-openai>=0.3.12",
+    "langgraph>=0.3.28",
+    "mcp>=1.6.0",
+    "python-dotenv>=1.1.0",
+    "requests>=2.32.3",
+]
