@@ -72,14 +72,14 @@ async def test_execute_tool():
         repo_name = os.getenv("GITHUB_REPO")
         user_name = os.getenv("GITHUB_OWNER")
 
-        tool_name = "list_issues"
-        parameters = {
-            "owner": user_name,
-            "repo": repo_name,
-            "state": "open",
-            "sort": "updated",
-            "direction": "desc"
-        }
+        # tool_name = "list_issues"
+        # parameters = {
+        #     "owner": user_name,
+        #     "repo": repo_name,
+        #     "state": "open",
+        #     "sort": "updated",
+        #     "direction": "desc"
+        # }
 
         # tool_name = "list_pull_requests"
         # parameters = {
@@ -97,6 +97,8 @@ async def test_execute_tool():
         #     "path": "README.md"
         # }
 
+        tool_name = "get_issue"
+
         for tool in all_tools:
             if tool.name == tool_name:
                 break
@@ -105,7 +107,12 @@ async def test_execute_tool():
             # print(f"\nTool execution result for {tool_name}:")
             # result = json.loads(result)
             # print(len(result))
-            github_items = await github_processor.fetch_all_github_items(tool, parameters)
+            # github_items = await github_processor.fetch_all_github_items(tool, parameters)
+            issue_comments = await github_processor.is_last_update_by_owner(item_number=465,
+                                                                            item_type="issue",
+                                                                            owner_login=user_name,
+                                                                            repo=repo_name,
+                                                                            tools=all_tools)
             pdb.set_trace()
         except Exception as e:
             print(f"Error executing tool {tool_name}: {e}")

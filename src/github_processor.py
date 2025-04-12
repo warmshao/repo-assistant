@@ -193,11 +193,21 @@ async def is_last_update_by_owner(
     """
     logger.debug(f"Checking last comment author for {item_type} #{item_number} against owner '{owner_login}'")
 
-    # GitHub API often uses 'issue_number' for comments on both issues and PRs
-    comment_tool_name = "get_issue_comments"
     # You could also use 'get_pull_request_comments' specifically for PRs if available and preferred
-    # comment_tool_name = "get_pull_request_comments" if item_type == 'pr' else "get_issue_comments"
-
+    if item_type == "pr":
+        comment_tool_name = "get_pull_request_comments"
+        params = {
+            "owner": owner_login,  # The repo owner for the API call context
+            "repo": repo,
+            "pullNumber": item_number
+        }
+    else:
+        comment_tool_name = "get_issue_comments"
+        params = {
+            "owner": owner_login,  # The repo owner for the API call context
+            "repo": repo,
+            "issue_number": item_number
+        }
     comments_tool = find_tool(tools, comment_tool_name)
     if not comments_tool:
         logger.warning(
@@ -205,17 +215,6 @@ async def is_last_update_by_owner(
         return False  # Cannot determine, assume not owner to avoid skipping valid items
 
     try:
-        # Fetch only the most recent comment(s). API usually returns newest first.
-        # Fetching more than 1 helps if the absolute latest is a system message or similar.
-        # Adjust perPage based on typical comment volume / potential system noise.
-        params = {
-            "owner": owner_login,  # The repo owner for the API call context
-            "repo": repo,
-            "issue_number": item_number,
-            "perPage": 5,  # Fetch a few recent comments
-            "sort": "created",  # Sort by creation time
-            "direction": "desc"  # Get newest first
-        }
         logger.debug(f"Invoking {comments_tool.name} with params: {params}")
         comments_result = await comments_tool.ainvoke(params)
 
@@ -240,7 +239,7 @@ async def is_last_update_by_owner(
             return False  # No comments, so owner couldn't be the last commenter
 
         # The first comment in the list should be the latest
-        latest_comment = comments_list[0]
+        latest_comment = comments_list[-1]
         last_commenter_login = latest_comment.get("user", {}).get("login")
 
         if not last_commenter_login:
