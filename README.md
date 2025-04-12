@@ -44,7 +44,7 @@ The assistant periodically scans the specified GitHub repository for the latest 
 
 1.  **Clone the Repository:**
     ```bash
-    git clone https://github.com/warmshao/repo-assistant.git # Replace with your repository URL
+    git clone https://github.com/warmshao/repo-assistant.git
     cd repo-assistant
     ```
 
