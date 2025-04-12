@@ -95,7 +95,7 @@ def get_llm_model(provider: str, **kwargs):
         return AzureChatOpenAI(
             model=kwargs.get("model_name", "gpt-4o"),
             temperature=kwargs.get("temperature", 0.0),
-            api_version="2024-05-01-preview",
+            api_version="2025-01-01-preview",
             azure_endpoint=base_url,
             api_key=api_key,
             seed=seed

@@ -371,7 +371,7 @@ async def main():
                 pr_agent, filtered_tools, GITHUB_OWNER, GITHUB_REPO, PR_INTERVAL
             )
         )
-        background_tasks = [task1, task2]  # Store tasks for cancellation
+        background_tasks = [task1]  # Store tasks for cancellation
 
         # 6. Run until shutdown signal
         logger.info("Repo Assistant setup complete and running. Waiting for shutdown signal (Ctrl+C)...")
