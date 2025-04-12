@@ -36,8 +36,7 @@ def create_repo_agent(
         return None
     if not tools:
         logger.warning("No tools provided to the agent. It might lack capabilities.")
-        # Decide if you want to proceed without tools or return None
-        # return None
+        return None
 
     # Prepare the system prompt with dynamic repository info and README content
     try:

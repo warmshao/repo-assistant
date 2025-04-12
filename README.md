@@ -25,8 +25,8 @@ Repo Assistant leverages the following powerful tools and technologies:
 
 1.  **LangChain & LangGraph:** Acts as the core framework, orchestrating the LLM, tools, and processing logic.
 2.  **MCP (Multi-agent Communication Protocol) Adapters:**
-    *   `github-mcp-server`: Runs via Docker, providing a toolset for interacting with the GitHub API (fetching info, commenting, closing issues, etc.).
-    *   `playwright-mcp`: Provides capabilities for browser interaction, used for searching external information or performing actions not feasible via the GitHub API when needed.
+    *   [github-mcp-server](https://github.com/github/github-mcp-server) : Runs via Docker, providing a toolset for interacting with the GitHub API (fetching info, commenting, closing issues, etc.).
+    *   [playwright-mcp](https://github.com/microsoft/playwright-mcp) : Provides capabilities for browser interaction, used for searching external information or performing actions not feasible via the GitHub API when needed.
 3.  **Large Language Models (LLM):** Provides the understanding, analysis, and text generation capabilities, using different models based on configuration.
 
 The assistant periodically scans the specified GitHub repository for the latest open Issues and PRs. For each eligible item (not last updated by the repository owner), it invokes the configured LLM Agent. Combining the project's README context and the available MCP tools, the agent analyzes the item and performs the predefined actions (commenting or closing).
@@ -50,7 +50,6 @@ The assistant periodically scans the specified GitHub repository for the latest 
 
 2.  **Set up Virtual Environment and Sync Dependencies:**
     ```bash
-    uv venv # Create a virtual environment (.venv)
     uv sync # Install dependencies from requirements.txt/pyproject.toml
     source .venv/bin/activate # Activate environment (Linux/macOS)
     # Or: .venv\Scripts\activate (Windows)
