@@ -195,11 +195,12 @@ async def is_last_update_by_owner(
 
     # You could also use 'get_pull_request_comments' specifically for PRs if available and preferred
     if item_type == "pr":
-        comment_tool_name = "get_pull_request_comments"
+        # comment_tool_name = "get_pull_request_comments"
+        comment_tool_name = "get_issue_comments"
         params = {
             "owner": owner_login,  # The repo owner for the API call context
             "repo": repo,
-            "pullNumber": item_number
+            "issue_number": item_number
         }
     else:
         comment_tool_name = "get_issue_comments"
@@ -297,16 +298,16 @@ async def process_issue(
         # final_answer = f"(Agent did not produce final answer for Issue #{issue_number})"  # Default/fallback
 
         # Stream events to observe the agent's process (tool calls, thoughts)
-        final_answer = await agent_executor.ainvoke(agent_input)
-        # async for event in agent_executor.astream_events(agent_input):
-        #     print_agent_step(event)  # Log intermediate steps via utility function
-        #     # Capture the final answer from the main chain's end event
-        #     if event.get("event") == "on_chain_end":  # Adjust based on agent type if needed
-        #         output = event.get("data", {}).get("output", {})
-        #         if isinstance(output, dict) and "messages" in output:
-        #             final_messages = output.get("messages", [])
-        #             if final_messages and hasattr(final_messages[-1], 'content'):
-        #                 final_answer = final_messages[-1].content
+        # final_answer = await agent_executor.ainvoke(agent_input)
+        async for event in agent_executor.astream_events(agent_input):
+            print_agent_step(event)  # Log intermediate steps via utility function
+            # Capture the final answer from the main chain's end event
+            if event.get("event") == "on_chain_end":  # Adjust based on agent type if needed
+                output = event.get("data", {}).get("output", {})
+                if isinstance(output, dict) and "messages" in output:
+                    final_messages = output.get("messages", [])
+                    if final_messages and hasattr(final_messages[-1], 'content'):
+                        final_answer = final_messages[-1].content
 
         # Log the agent's final summary/confirmation message
         logger.info(f"Agent finished processing Issue #{issue_number}. Final confirmation: {final_answer}")
@@ -360,17 +361,17 @@ async def process_pr(
         logger.info(f"Invoking agent for PR #{pr_number}...")
         # final_answer = f"(Agent did not produce final answer for PR #{pr_number})"  # Default/fallback
 
-        final_answer = await agent_executor.ainvoke(agent_input)
+        # final_answer = await agent_executor.ainvoke(agent_input)
         # Stream events to observe the agent's process
-        # async for event in agent_executor.astream_events(agent_input):
-        #     print_agent_step(event)  # Log intermediate steps
-        #     # Capture the final answer
-        #     if event.get("event") == "on_chain_end":
-        #         output = event.get("data", {}).get("output", {})
-        #         if isinstance(output, dict) and "messages" in output:
-        #             final_messages = output.get("messages", [])
-        #             if final_messages and hasattr(final_messages[-1], 'content'):
-        #                 final_answer = final_messages[-1].content
+        async for event in agent_executor.astream_events(agent_input):
+            print_agent_step(event)  # Log intermediate steps
+            # Capture the final answer
+            if event.get("event") == "on_chain_end":
+                output = event.get("data", {}).get("output", {})
+                if isinstance(output, dict) and "messages" in output:
+                    final_messages = output.get("messages", [])
+                    if final_messages and hasattr(final_messages[-1], 'content'):
+                        final_answer = final_messages[-1].content
 
         # Log the agent's final summary/confirmation message
         logger.info(f"Agent finished processing PR #{pr_number}. Final confirmation: {final_answer}")

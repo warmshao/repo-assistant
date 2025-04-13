@@ -135,23 +135,23 @@ def print_agent_step(event_data: dict):
         output_log = (str(output_data)[:300] + '...') if len(str(output_data)) > 300 else str(output_data)
         logger.info(f"{log_prefix} Finished Tool -> Output (truncated): {output_log}")
 
-    elif kind == "on_chat_model_end":  # Or on_llm_end depending on exact event stream
-        # LLM finished generating a response (could be final answer or tool request)
-        output = data.get("output", {})
-        if hasattr(output, 'content'):
-            logger.debug(f"{log_prefix} LLM Response: {output.content[:100]}...")  # Debug level for LLM turns
-
-    elif kind == "on_chain_end":
-        # Log when the main agent chain/graph finishes
-        output = data.get("output", {})
-        # The final answer structure depends on the agent implementation (e.g., LangGraph)
-        if isinstance(output, dict) and "messages" in output:
-            final_messages = output.get("messages", [])
-            if final_messages and hasattr(final_messages[-1], 'content'):
-                final_answer = final_messages[-1].content
-                logger.info(f"{log_prefix} Final Answer: {final_answer}")
-            else:
-                logger.info(f"{log_prefix} Ended, but couldn't extract final message content.")
-        else:
-            # Fallback for simpler chain outputs
-            logger.info(f"{log_prefix} Ended. Raw Output: {str(output)[:200]}...")
+    # elif kind == "on_chat_model_end":  # Or on_llm_end depending on exact event stream
+    #     # LLM finished generating a response (could be final answer or tool request)
+    #     output = data.get("output", {})
+    #     if hasattr(output, 'content'):
+    #         logger.debug(f"{log_prefix} LLM Response: {output.content[:100]}...")  # Debug level for LLM turns
+    #
+    # elif kind == "on_chain_end":
+    #     # Log when the main agent chain/graph finishes
+    #     output = data.get("output", {})
+    #     # The final answer structure depends on the agent implementation (e.g., LangGraph)
+    #     if isinstance(output, dict) and "messages" in output:
+    #         final_messages = output.get("messages", [])
+    #         if final_messages and hasattr(final_messages[-1], 'content'):
+    #             final_answer = final_messages[-1].content
+    #             logger.info(f"{log_prefix} Final Answer: {final_answer}")
+    #         else:
+    #             logger.info(f"{log_prefix} Ended, but couldn't extract final message content.")
+    #     else:
+    #         # Fallback for simpler chain outputs
+    #         logger.info(f"{log_prefix} Ended. Raw Output: {str(output)[:200]}...")

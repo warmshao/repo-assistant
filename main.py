@@ -1,5 +1,6 @@
 # main.py
 import asyncio
+import pdb
 import signal
 import os
 import time
@@ -87,6 +88,10 @@ async def issue_processing_loop(
                 issue_id = issue_data.get("number")
                 if not issue_id:
                     logger.warning("[Issue Loop] Skipping issue with missing number.")
+                    continue
+
+                if "issues" not in issue_data.get("html_url", ""):
+                    logger.warning("[Issue Loop] Skipping issue with missing html_url.")
                     continue
 
                 # a) Skip if it was the very last item processed in the previous cycle
@@ -188,6 +193,10 @@ async def pr_processing_loop(
                 pr_id = pr_data.get("number")
                 if not pr_id:
                     logger.warning("[PR Loop] Skipping PR with missing number.")
+                    continue
+
+                if "pull" not in pr_data.get("html_url", ""):
+                    logger.warning("[PR Loop] Skipping pr with missing html_url.")
                     continue
 
                 # a) Skip if it was the last processed
@@ -350,9 +359,11 @@ async def main():
 
         # 4. Create Agent Executor
         try:
-            issue_agent = create_repo_agent(llm, filtered_tools, GITHUB_OWNER, GITHUB_REPO, readme_content, True)
+            issue_agent = create_repo_agent(llm, filtered_tools, GITHUB_OWNER, GITHUB_REPO, readme_content,
+                                            is_issue_agent=True)
             if not issue_agent: raise ValueError("Issue create_repo_agent returned None")
-            pr_agent = create_repo_agent(llm, filtered_tools, GITHUB_OWNER, GITHUB_REPO, readme_content, False)
+            pr_agent = create_repo_agent(llm, filtered_tools, GITHUB_OWNER, GITHUB_REPO, readme_content,
+                                         is_issue_agent=False)
             if not pr_agent: raise ValueError("PR create_repo_agent returned None")
         except Exception as agent_err:
             logger.critical(f"Failed to create agent executor: {agent_err}. Exiting.", exc_info=True)
@@ -371,7 +382,7 @@ async def main():
                 pr_agent, filtered_tools, GITHUB_OWNER, GITHUB_REPO, PR_INTERVAL
             )
         )
-        background_tasks = [task1]  # Store tasks for cancellation
+        background_tasks = [task1, task2]  # Store tasks for cancellation
 
         # 6. Run until shutdown signal
         logger.info("Repo Assistant setup complete and running. Waiting for shutdown signal (Ctrl+C)...")
