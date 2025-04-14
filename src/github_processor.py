@@ -195,6 +195,7 @@ async def is_last_update_by_owner(
 
     get_me_tool = find_tool(tools, "get_me")
     get_me_result = await get_me_tool.ainvoke({})
+    get_me_result = json.loads(get_me_result)
 
     # You could also use 'get_pull_request_comments' specifically for PRs if available and preferred
     if item_type == "pr":
