@@ -6,15 +6,15 @@ from langchain_core.language_models import BaseChatModel
 from langgraph.prebuilt import create_react_agent
 from src.prompts import ISSUE_SYSTEM_PROMPT_TEMPLATE, PR_SYSTEM_PROMPT_TEMPLATE, README_CONTENT_PLACEHOLDER
 from src.utils import logger
+from gitingest import ingest, ingest_async
 
-
-def create_repo_agent(
+async def create_repo_agent(
         llm: BaseChatModel,
         tools: List[BaseTool],
         repo_owner: str,
         repo_name: str,
         readme_content: str,
-        is_issue_agent: str = True
+        is_issue_agent: bool = True
 ) -> Optional[Runnable]:
     """
     Creates and configures a LangChain ReAct agent for repository assistance tasks.
@@ -40,15 +40,19 @@ def create_repo_agent(
 
     # Prepare the system prompt with dynamic repository info and README content
     try:
+        github_url = f"https://github.com/{repo_owner}/{repo_name}"
+        summary, repo_structure, content = await ingest_async(github_url)
         if is_issue_agent:
             system_prompt = ISSUE_SYSTEM_PROMPT_TEMPLATE.format(
                 repo_owner=repo_owner,
-                repo_name=repo_name
+                repo_name=repo_name,
+                repo_structure=repo_structure
             ).replace(README_CONTENT_PLACEHOLDER, readme_content if readme_content else "(README content unavailable)")
         else:
             system_prompt = PR_SYSTEM_PROMPT_TEMPLATE.format(
                 repo_owner=repo_owner,
-                repo_name=repo_name
+                repo_name=repo_name,
+                repo_structure=repo_structure
             ).replace(README_CONTENT_PLACEHOLDER, readme_content if readme_content else "(README content unavailable)")
     except KeyError as e:
         logger.error(f"Failed to format system prompt - missing key: {e}")

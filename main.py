@@ -359,10 +359,10 @@ async def main():
 
         # 4. Create Agent Executor
         try:
-            issue_agent = create_repo_agent(llm, filtered_tools, GITHUB_OWNER, GITHUB_REPO, readme_content,
+            issue_agent = await create_repo_agent(llm, filtered_tools, GITHUB_OWNER, GITHUB_REPO, readme_content,
                                             is_issue_agent=True)
             if not issue_agent: raise ValueError("Issue create_repo_agent returned None")
-            pr_agent = create_repo_agent(llm, filtered_tools, GITHUB_OWNER, GITHUB_REPO, readme_content,
+            pr_agent = await create_repo_agent(llm, filtered_tools, GITHUB_OWNER, GITHUB_REPO, readme_content,
                                          is_issue_agent=False)
             if not pr_agent: raise ValueError("PR create_repo_agent returned None")
         except Exception as agent_err:

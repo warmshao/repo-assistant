@@ -72,14 +72,14 @@ async def test_execute_tool():
         repo_name = os.getenv("GITHUB_REPO")
         user_name = os.getenv("GITHUB_OWNER")
 
-        # tool_name = "list_issues"
-        # parameters = {
-        #     "owner": user_name,
-        #     "repo": repo_name,
-        #     "state": "open",
-        #     "sort": "updated",
-        #     "direction": "desc"
-        # }
+        tool_name = "list_issues"
+        parameters = {
+            "owner": user_name,
+            "repo": repo_name,
+            "state": "open",
+            "sort": "updated",
+            "direction": "desc"
+        }
 
         # tool_name = "list_pull_requests"
         # parameters = {
@@ -97,12 +97,15 @@ async def test_execute_tool():
         #     "path": "README.md"
         # }
 
-        tool_name = "get_pull_request_comments"
-        parameters = {
-            "owner": user_name,  # The repo owner for the API call context
-            "repo": repo_name,
-            "pullNumber": 472
-        }
+        # tool_name = "get_pull_request_comments"
+        # parameters = {
+        #     "owner": user_name,  # The repo owner for the API call context
+        #     "repo": repo_name,
+        #     "pullNumber": 472
+        # }
+
+        tool_name = "get_me"
+        parameters = {}
 
         for tool in all_tools:
             if tool.name == tool_name:

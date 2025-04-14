@@ -193,6 +193,9 @@ async def is_last_update_by_owner(
     """
     logger.debug(f"Checking last comment author for {item_type} #{item_number} against owner '{owner_login}'")
 
+    get_me_tool = find_tool(tools, "get_me")
+    get_me_result = await get_me_tool.ainvoke({})
+
     # You could also use 'get_pull_request_comments' specifically for PRs if available and preferred
     if item_type == "pr":
         # comment_tool_name = "get_pull_request_comments"
@@ -247,7 +250,7 @@ async def is_last_update_by_owner(
             return False  # Cannot determine, assume not owner
 
         logger.debug(f"Latest comment on {item_type} #{item_number} by '{last_commenter_login}'.")
-        is_owner = last_commenter_login.lower() == owner_login.lower()
+        is_owner = last_commenter_login.lower() == get_me_result["login"].lower()
         if is_owner:
             logger.info(f"Skipping {item_type} #{item_number}: Last comment was by owner '{owner_login}'.")
         return is_owner
