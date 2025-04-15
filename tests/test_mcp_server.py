@@ -33,7 +33,7 @@ async def test_list_tools():
                     "command": "npx",
                     "args": [
                         "@playwright/mcp@latest",
-                        "--vision"
+                        # "--vision"
                     ]
                 }
             }
@@ -65,6 +65,13 @@ async def test_execute_tool():
                         "GITHUB_PERSONAL_ACCESS_TOKEN": os.getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
                     }
                 },
+                "playwright": {
+                    "command": "npx",
+                    "args": [
+                        "@playwright/mcp@latest",
+                        # "--vision"
+                    ]
+                }
             }
     ) as client:
         all_tools = client.get_tools()
@@ -90,12 +97,12 @@ async def test_execute_tool():
         #     "direction": "desc"
         # }
 
-        # tool_name = "get_file_contents"
-        # parameters = {
-        #     "owner": user_name,
-        #     "repo": repo_name,
-        #     "path": "README.md"
-        # }
+        tool_name = "get_file_contents"
+        parameters = {
+            "owner": "browser-use",
+            "repo": "browser-use",
+            "path": "README.md"
+        }
 
         # tool_name = "get_pull_request_comments"
         # parameters = {
@@ -104,8 +111,13 @@ async def test_execute_tool():
         #     "pullNumber": 472
         # }
 
-        tool_name = "get_me"
-        parameters = {}
+        # tool_name = "get_me"
+        # parameters = {}
+
+        # tool_name = "browser_navigate"
+        # parameters = {
+        #     "url": "https://docs.browser-use.com/introduction",
+        # }
 
         for tool in all_tools:
             if tool.name == tool_name:
@@ -113,8 +125,8 @@ async def test_execute_tool():
         try:
             result = await tool.ainvoke(parameters)
             print(f"\nTool execution result for {tool_name}:")
-            result = json.loads(result)
-            print(len(result))
+            # result = json.loads(result)
+            # print(len(result))
             # github_items = await github_processor.fetch_all_github_items(tool, parameters)
             # issue_comments = await github_processor.is_last_update_by_owner(item_number=87,
             #                                                                 item_type="pr",

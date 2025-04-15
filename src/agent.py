@@ -4,9 +4,14 @@ from langchain_core.tools import BaseTool
 from langchain_core.runnables import Runnable
 from langchain_core.language_models import BaseChatModel
 from langgraph.prebuilt import create_react_agent
-from src.prompts import ISSUE_SYSTEM_PROMPT_TEMPLATE, PR_SYSTEM_PROMPT_TEMPLATE, README_CONTENT_PLACEHOLDER
+from src.prompts import ISSUE_SYSTEM_PROMPT_TEMPLATE, PR_SYSTEM_PROMPT_TEMPLATE, README_CONTENT_PLACEHOLDER, \
+    FQA_SYSTEM_PROMPT_TEMPLATE
 from src.utils import logger
 from gitingest import ingest, ingest_async
+from langgraph.checkpoint.memory import MemorySaver
+
+from . import utils
+
 
 async def create_repo_agent(
         llm: BaseChatModel,
@@ -42,6 +47,7 @@ async def create_repo_agent(
     try:
         github_url = f"https://github.com/{repo_owner}/{repo_name}"
         summary, repo_structure, content = await ingest_async(github_url)
+        repo_structure = "\n".join(repo_structure.split("\n")[2:])
         if is_issue_agent:
             system_prompt = ISSUE_SYSTEM_PROMPT_TEMPLATE.format(
                 repo_owner=repo_owner,
@@ -65,6 +71,63 @@ async def create_repo_agent(
             llm,
             tools,
             prompt=system_prompt  # Applies the system message to the conversation history
+        )
+        logger.info("LangChain ReAct agent executor created successfully.")
+        return agent_executor
+    except ImportError:
+        logger.error(
+            "Failed to create agent: 'langgraph' package not found or 'create_react_agent' unavailable. Please install/update langgraph.")
+        return None
+    except Exception as e:
+        logger.error(f"Failed to create LangChain agent: {e}", exc_info=True)
+        return None
+
+
+async def create_repo_fqa_agent(
+        llm: BaseChatModel,
+        tools: List[BaseTool],
+        memory: MemorySaver,
+        repo_url: str,
+        repo_docs_url: Optional[str] = "",
+) -> Optional[Runnable]:
+    """
+    Creates and configures a LangChain ReAct agent for repository assistance tasks.
+
+    Args:
+        llm: The initialized language model instance.
+        tools: The list of available LangChain tools (from MCP).
+
+    Returns:
+        A LangChain Runnable (agent executor) instance, or None if creation fails.
+    """
+    logger.info("Creating LangChain ReAct agent executor...")
+
+    if not llm:
+        logger.error("LLM instance is required to create an agent.")
+        return None
+    if not tools:
+        logger.warning("No tools provided to the agent. It might lack capabilities.")
+        return None
+
+    summary, repo_structure, content = await ingest_async(repo_url)
+    repo_structure = "\n".join(repo_structure.split("\n")[2:])
+    repo_owner, repo_name = utils.extract_github_owner_repo(repo_url)
+    system_prompt = FQA_SYSTEM_PROMPT_TEMPLATE.format(
+        repo_url=repo_url,
+        repo_docs_url=repo_docs_url,
+        repo_structure=repo_structure,
+        repo_owner=repo_owner,
+        repo_name=repo_name
+    )
+
+    try:
+        # create_react_agent sets up the necessary agent executor runnable
+        # It internally manages the ReAct loop (Thought, Action, Observation)
+        agent_executor = create_react_agent(
+            llm,
+            tools,
+            prompt=system_prompt,
+            checkpointer=memory
         )
         logger.info("LangChain ReAct agent executor created successfully.")
         return agent_executor
